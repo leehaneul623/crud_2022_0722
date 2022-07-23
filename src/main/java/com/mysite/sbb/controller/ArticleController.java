@@ -1,7 +1,9 @@
 package com.mysite.sbb.controller;
 
 import com.mysite.sbb.dao.Article;
+import com.mysite.sbb.dao.User;
 import com.mysite.sbb.repository.ArticleRepository;
+import com.mysite.sbb.repository.UserRepository;
 import com.mysite.sbb.ut.Ut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,27 +19,33 @@ public class ArticleController {
 
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     //C ========================================
-    @RequestMapping("/doWrite")
+    @RequestMapping("doWrite")
     @ResponseBody
     public String doWrite(String title, String body){
         if(Ut.empty(title)){
             return "제목을 입력해주세요.";
         }
+
         if(Ut.empty(body)){
             return "내용을 입력해주세요.";
         }
+
         Article article = new Article();
         article.setRegDate(LocalDateTime.now());
         article.setUpdateDate(LocalDateTime.now());
         article.setTitle(title);
         article.setBody(body);
-        article.setUserId(1L);
+        User user = userRepository.findById(1L).get();
+        article.setUser(user);
 
         articleRepository.save(article);
 
-        return "%d번 게시물 생성이 완료 되었습니다.".formatted(article.getId());
+        return "%d번 게시물 생성이 완료되었습니다.".formatted(article.getId());
+
     }
 
 
@@ -52,6 +60,7 @@ public class ArticleController {
     @ResponseBody
     public Article showDetail(Long id){
         Article article = articleRepository.findById(id).get();
+
         return article;
     }
 
